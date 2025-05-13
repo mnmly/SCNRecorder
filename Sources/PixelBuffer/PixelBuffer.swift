@@ -59,7 +59,11 @@ final class PixelBuffer: CustomStringConvertible {
     init(_ attributes: MetalTexture.Attributes) {
       width = attributes.width
       height = attributes.height
-      pixelFormat = attributes.pixelFormat.pixelFormatType
+        if #available(iOS 10.0, macOS 11.0, *) {
+            pixelFormat = attributes.pixelFormat.pixelFormatType
+        } else {
+            pixelFormat = kCVPixelFormatType_32BGRA
+        }
     }
   }
 

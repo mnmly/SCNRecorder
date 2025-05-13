@@ -24,7 +24,11 @@
 //  THE SOFTWARE.
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 import AVFoundation
 
 public protocol RecordableLayer: AnyObject {
@@ -41,7 +45,9 @@ public protocol RecordableLayer: AnyObject {
 
   var framebufferOnly: Bool { get }
 
+#if canImport(UIKit)
   var interfaceOrientation: UIInterfaceOrientation { get }
+#endif
 
   func prepareForRecording()
 }

@@ -69,7 +69,7 @@ extension PixelBufferOutput: VideoMediaSessionOutput {
 
   func appendVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
     guard let imageBuffer: CVImageBuffer = {
-      if #available(iOS 13.0, *) {
+        if #available(iOS 13.0, macOS 10.15, *) {
         return sampleBuffer.imageBuffer
       } else {
         return CMSampleBufferGetImageBuffer(sampleBuffer)
@@ -77,7 +77,7 @@ extension PixelBufferOutput: VideoMediaSessionOutput {
     }() else { return }
 
     let time: CMTime
-    if #available(iOS 13.0, *) {
+      if #available(iOS 13.0, macOS 10.15, *) {
       time = sampleBuffer.presentationTimeStamp
     } else {
       time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)

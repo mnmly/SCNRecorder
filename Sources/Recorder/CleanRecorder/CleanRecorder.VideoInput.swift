@@ -49,7 +49,7 @@ extension CleanRecorder {
 
     var videoTransform: CGAffineTransform { .identity }
 
-    var imageOrientation: UIImage.Orientation { .up }
+      var imageOrientation: ImageRepresentable.Orientation { .up }
 
     lazy var pixelBufferPoolFactory = PixelBufferPoolFactory.getWeaklyShared()
 

@@ -26,6 +26,7 @@
 import Foundation
 import AVFoundation
 
+#if canImport(UIKit)
 @available(iOS 13.0, *)
 extension AudioEngine.Player {
 
@@ -187,3 +188,5 @@ extension AudioEngine.Player {
     }
   }
 }
+
+#endif

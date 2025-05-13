@@ -24,7 +24,11 @@
 //  THE SOFTWARE.
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 import AVFoundation
 import SceneKit
 
@@ -208,12 +212,17 @@ public extension SelfRecordable {
     videoRecording?.cancel()
     videoRecording = nil
   }
+//#if os(iOS) || os(tvOS)
+//scale: CGFloat = UIScreen.main.scale,
+//#else
+//#endif
 
   func takePhoto(
-    scale: CGFloat = UIScreen.main.scale,
-    orientation: UIImage.Orientation? = nil,
-    completionHandler handler: @escaping (UIImage) -> Void
-  ) {
+    scale: CGFloat = 1.0,
+    orientation: ImageRepresentable.Orientation? = nil,
+    completionHandler handler: @escaping (ImageRepresentable) -> Void
+   ) {
+       
     takePhotoResult(
       scale: scale,
       orientation: orientation
@@ -222,11 +231,14 @@ public extension SelfRecordable {
       catch { assertionFailure("\(error)") }
     }
   }
-
+//#if os(iOS) || os(tvOS)
+//scale: CGFloat = UIScreen.main.scale,
+//#else
+//#endif
   func takePhotoResult(
-    scale: CGFloat = UIScreen.main.scale,
-    orientation: UIImage.Orientation? = nil,
-    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
+    scale: CGFloat = 1.0,
+    orientation: ImageRepresentable.Orientation? = nil,
+    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
   ) {
     assertedRecorder().takePhoto(scale: scale, orientation: orientation) { photo in
       DispatchQueue.main.async { handler(photo) }

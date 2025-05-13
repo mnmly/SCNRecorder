@@ -25,6 +25,8 @@
 
 import Foundation
 import AVFoundation
+
+#if canImport(UIKit)
 import UIKit
 
 @available(iOS 13.0, *)
@@ -309,3 +311,4 @@ extension AudioEngine {
     return sampleBuffer
   }
 }
+#endif

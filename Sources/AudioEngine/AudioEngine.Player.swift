@@ -26,6 +26,8 @@
 import Foundation
 import AVFoundation
 
+#if canImport(UIKit)
+
 @available(iOS 13.0, *)
 extension AudioEngine {
 
@@ -201,3 +203,6 @@ extension AudioEngine.Player {
     position = queue.sync { state.getPosition(self) }
   }
 }
+
+
+#endif

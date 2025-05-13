@@ -25,10 +25,13 @@
 
 import Foundation
 import AVFoundation
+#if canImport(ARKit)
 import ARKit
+#endif
 
 extension BaseRecorder {
-
+    
+#if canImport(UIKit)
   final class AudioInput: NSObject, MediaSessionInput_SampleBufferAudio {
 
     let queue: DispatchQueue
@@ -52,7 +55,6 @@ extension BaseRecorder {
     func start() { started = true }
 
     func stop() { started = false }
-
     func recommendedAudioSettingsForAssetWriter(
       writingTo outputFileType: AVFileType
     ) -> [String: Any] {
@@ -61,8 +63,10 @@ extension BaseRecorder {
         ?? AudioSettings().outputSettings
     }
   }
+#endif
 }
 
+#if canImport(UIKit)
 extension BaseRecorder.AudioInput: AVCaptureAudioDataOutputSampleBufferDelegate {
 
   @objc func captureOutput(
@@ -72,17 +76,6 @@ extension BaseRecorder.AudioInput: AVCaptureAudioDataOutputSampleBufferDelegate 
   ) {
     guard started, !useAudioEngine else { return }
     self.output?(sampleBuffer)
-  }
-}
-
-extension BaseRecorder.AudioInput: ARSessionObserver {
-
-  func session(
-    _ session: ARSession,
-    didOutputAudioSampleBuffer audioSampleBuffer: CMSampleBuffer
-  ) {
-    guard started, !useAudioEngine else { return }
-    queue.async { [output] in output?(audioSampleBuffer) }
   }
 }
 
@@ -97,3 +90,17 @@ extension BaseRecorder.AudioInput {
     queue.async { [output] in output?(audioSampleBuffer) }
   }
 }
+#endif
+
+#if canImport(ARKit)
+extension BaseRecorder.AudioInput: ARSessionObserver {
+
+  func session(
+    _ session: ARSession,
+    didOutputAudioSampleBuffer audioSampleBuffer: CMSampleBuffer
+  ) {
+    guard started, !useAudioEngine else { return }
+    queue.async { [output] in output?(audioSampleBuffer) }
+  }
+}
+#endif

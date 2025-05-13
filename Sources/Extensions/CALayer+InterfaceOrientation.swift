@@ -24,22 +24,23 @@
 //  THE SOFTWARE.
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 extension CALayer {
 
+  #if os(iOS) || os(tvOS)
   var window: UIWindow? {
     (delegate as? UIView)?.window
       ?? superlayer?.window
       ?? UIApplication.shared.keyWindow
   }
-
+  @available(iOS 11.0, *)
   public var interfaceOrientation: UIInterfaceOrientation {
-    if #available(iOS 13.0, *) {
       return window?.windowScene?.interfaceOrientation ?? _interfaceOrientation
-    } else {
-      return _interfaceOrientation
-    }
   }
 
   private var _interfaceOrientation: UIInterfaceOrientation {
@@ -59,4 +60,9 @@ extension CALayer {
     case (false, false): return .portrait
     }
   }
+  #elseif os(macOS)
+  var window: NSWindow? {
+    (delegate as? NSView)?.window ?? superlayer?.window
+  }
+  #endif
 }

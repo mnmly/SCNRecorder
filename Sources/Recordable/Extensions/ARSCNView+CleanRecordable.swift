@@ -24,9 +24,11 @@
 //  THE SOFTWARE.
 
 import Foundation
-import ARKit
 
+#if canImport(ARKit)
+import ARKit
 extension ARSCNView: CleanRecordable {
 
   public var cleanPixelBuffer: CVPixelBuffer? { session.currentFrame?.capturedImage }
 }
+#endif

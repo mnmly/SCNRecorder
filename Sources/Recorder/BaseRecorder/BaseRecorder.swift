@@ -25,7 +25,9 @@
 
 import Foundation
 import CoreMedia
+#if os(iOS)
 import ARKit
+#endif
 
 public class BaseRecorder: NSObject {
 
@@ -33,21 +35,23 @@ public class BaseRecorder: NSObject {
 
   var hasAudioInput = false
 
+#if os(iOS) || os(tvOS)
   lazy var audioInput: AudioInput = {
     let audioInput = AudioInput(queue: queue)
     hasAudioInput = true
     mediaSession.setAudioInput(audioInput)
     return audioInput
   }()
-
-  let queue: DispatchQueue
-
-  @SCNObservable public internal(set) var error: Swift.Error?
-
+    
   public var useAudioEngine: Bool {
     get { audioInput.useAudioEngine }
     set { audioInput.useAudioEngine = newValue }
   }
+#endif
+
+  let queue: DispatchQueue
+
+  @SCNObservable public internal(set) var error: Swift.Error?
 
   init(queue: DispatchQueue, mediaSession: MediaSession) {
     self.queue = queue
@@ -76,8 +80,8 @@ public class BaseRecorder: NSObject {
 
   public func takePhoto(
     scale: CGFloat,
-    orientation: UIImage.Orientation?,
-    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
+    orientation: PlatformImage.Orientation?,
+    handler: @escaping (Result<PlatformImage, Swift.Error>) -> Void
   ) {
     mediaSession.takePhoto(
       scale: scale,
@@ -95,6 +99,7 @@ public class BaseRecorder: NSObject {
   }
 }
 
+#if os(iOS)
 // MARK: - ARSessionDelegate
 extension BaseRecorder: ARSessionDelegate {
 
@@ -105,3 +110,4 @@ extension BaseRecorder: ARSessionDelegate {
     audioInput.session(session, didOutputAudioSampleBuffer: audioSampleBuffer)
   }
 }
+#endif

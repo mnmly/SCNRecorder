@@ -27,16 +27,25 @@ import Foundation
 import AVFoundation
 import MetalPerformanceShaders
 
+@available(iOS 10.0, macOS 11.0, *)
 extension MTLPixelFormat {
 
   // Undocumented format, something like bgra10_xr_srgb, was found on iPhone 7 iOS 12.1.4
+  @available(iOS 10.0, macOS 11.0, *)
   static let rgb10a8_2p_xr10_srgb = MTLPixelFormat(rawValue: 551) ?? .bgra10_xr_srgb
 
   #if !targetEnvironment(simulator)
+  #if os(iOS)
   static let supportedPixelFormats: Set<MTLPixelFormat> = Set([
     .bgra8Unorm, .bgra8Unorm_srgb,
     .bgr10_xr, .bgr10_xr_srgb
   ])
+  #elseif os(macOS)
+  @available(macOS 11.0, *)
+  static let supportedPixelFormats: Set<MTLPixelFormat> = Set([
+    .bgra8Unorm, .bgra8Unorm_srgb
+  ])
+  #endif
   #else
   static let supportedPixelFormats: Set<MTLPixelFormat> = Set([
     .bgra8Unorm
@@ -44,6 +53,7 @@ extension MTLPixelFormat {
   #endif
 
   var colorPrimaries: String {
+    #if os(iOS)
     switch self {
     case .bgr10_xr,
          .bgr10_xr_srgb,
@@ -54,6 +64,20 @@ extension MTLPixelFormat {
     default:
       return AVVideoColorPrimaries_ITU_R_709_2
     }
+    #elseif os(macOS)
+    if #available(macOS 11.0, *) {
+      switch self {
+      case .bgra10_xr,
+           .bgra10_xr_srgb,
+           .rgb10a8_2p_xr10_srgb:
+        return AVVideoColorPrimaries_P3_D65
+      default:
+        return AVVideoColorPrimaries_ITU_R_709_2
+      }
+    } else {
+      return AVVideoColorPrimaries_ITU_R_709_2
+    }
+    #endif
   }
 
   var videoColorProperties: [String: String] {[
@@ -88,33 +112,41 @@ extension MTLPixelFormat {
 
   // A CoreVideo pixel format to be used as a format for storage for the content encoded as MTLPixelFormat
   var pixelFormatType: OSType {
+    #if os(iOS)
     switch self {
-
     case .bgra8Unorm, .bgra8Unorm_srgb:
       return kCVPixelFormatType_32BGRA
-
     case .bgr10_xr, .bgr10_xr_srgb, .rgb10a8_2p_xr10_srgb:
       return kCVPixelFormatType_30RGBLEPackedWideGamut
-
     default:
       return kCVPixelFormatType_32BGRA
     }
+    #elseif os(macOS)
+    if #available(macOS 11.0, *) {
+      switch self {
+      case .bgra8Unorm, .bgra8Unorm_srgb:
+        return kCVPixelFormatType_32BGRA
+      case .bgra10_xr, .bgra10_xr_srgb, .rgb10a8_2p_xr10_srgb:
+        return kCVPixelFormatType_30RGBLEPackedWideGamut
+      default:
+        return kCVPixelFormatType_32BGRA
+      }
+    } else {
+      return kCVPixelFormatType_32BGRA
+    }
+    #endif
   }
 
   // Assume that the alpha is premultiplied for formats with alpha channel.
   // This is true for SceneKit, ARKit, but might be different for pure metal projects with custom shaders
   var alphaType: MPSAlphaType {
     switch self {
-
     case .bgra8Unorm, .bgra8Unorm_srgb:
       return .premultiplied
-
     case .bgr10_xr, .bgr10_xr_srgb:
       return .alphaIsOne
-
     case .bgra10_xr, .bgra10_xr_srgb, .rgb10a8_2p_xr10_srgb:
       return .premultiplied
-
     default:
       return .premultiplied
     }

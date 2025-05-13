@@ -25,7 +25,11 @@
 
 import Foundation
 import AVFoundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 
 internal typealias MediaSessionInput_SampleBufferAudio = AudioMediaSessionInput & SampleBufferInput
@@ -58,7 +62,7 @@ protocol VideoMediaSessionInput: MediaSessionInput {
 
   var videoTransform: CGAffineTransform { get }
 
-  var imageOrientation: UIImage.Orientation { get }
+  var imageOrientation: ImageRepresentable.Orientation { get }
 }
 
 internal

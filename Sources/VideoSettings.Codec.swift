@@ -142,7 +142,7 @@ public extension VideoSettings.Codec {
     case .hevc:
       return .hevc
     case .hevcWithAlpha:
-      if #available(iOS 13.0, *) { return .hevcWithAlpha }
+      if #available(iOS 13.0, macOS 10.15, *) { return .hevcWithAlpha }
       else { return .hevc }
     case .h264:
       return .h264

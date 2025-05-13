@@ -228,7 +228,7 @@ private extension VideoOutputState {
 
     case .preparing:
       let time: CMTime
-      if #available(iOS 13.0, *) {
+      if #available(iOS 13.0, macOS 10.15, *) {
         time = sampleBuffer.presentationTimeStamp
       } else {
         time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)

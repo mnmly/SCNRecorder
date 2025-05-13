@@ -25,7 +25,11 @@
 
 import Foundation
 import AVFoundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 final class MediaSession {
 
@@ -49,7 +53,7 @@ final class MediaSession {
 
     var videoTransform: CGAffineTransform { videoInput.videoTransform }
 
-    var imageOrientation: UIImage.Orientation { videoInput.imageOrientation }
+    var imageOrientation: ImageRepresentable.Orientation { videoInput.imageOrientation }
 
     func start() { videoInput.start() }
 
@@ -171,11 +175,11 @@ extension MediaSession {
 
   func takePhoto(
     scale: CGFloat,
-    orientation: UIImage.Orientation?,
-    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
+    orientation: ImageRepresentable.Orientation?,
+    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
   ) {
     takePixelBuffer(
-      handler: ImageOutput.takeUIImage(
+      handler: ImageOutput.takeImageRepresentable(
         scale: scale,
         orientation: orientation ?? videoInput.imageOrientation,
         handler: handler

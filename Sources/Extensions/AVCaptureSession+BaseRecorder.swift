@@ -37,6 +37,8 @@ public extension AVCaptureSession {
     case canNotAddRecorder(recorder: BaseRecorder)
   }
 
+#if canImport(UIKit)
+
   static func makeAudioForRecorder(
     _ recorder: BaseRecorder
   ) throws -> AVCaptureSession {
@@ -75,4 +77,5 @@ public extension AVCaptureSession {
     guard recorder.hasAudioInput else { return }
     removeOutput(recorder.audioInput.captureOutput)
   }
+    #endif
 }

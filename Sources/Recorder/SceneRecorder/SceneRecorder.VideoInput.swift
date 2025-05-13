@@ -26,6 +26,11 @@
 import Foundation
 import AVFoundation
 import SceneKit
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 extension SceneRecorder {
 
@@ -44,9 +49,21 @@ extension SceneRecorder {
 
     var videoColorProperties: [String: String]? { producer.videoColorProperties }
 
-    var videoTransform: CGAffineTransform { producer.videoTransform }
+    var videoTransform: CGAffineTransform { 
+        #if canImport(UIKit)
+                return producer.videoTransform
+        #else
+                return .identity
+        #endif
+    }
 
-    var imageOrientation: UIImage.Orientation { producer.imageOrientation }
+    var imageOrientation: ImageRepresentable.Orientation {
+        #if canImport(UIKit)
+                return producer.imageOrientation
+        #else
+                return .up
+        #endif
+    }
 
     var output: ((CVBuffer, CMTime) -> Void)?
 

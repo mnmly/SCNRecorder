@@ -26,7 +26,11 @@
 import Foundation
 import AVFoundation
 import MetalPerformanceShaders
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 final class MetalPixelBufferProducer {
 
@@ -56,9 +60,14 @@ final class MetalPixelBufferProducer {
   let queue: DispatchQueue
 
   var videoColorProperties: [String: String]? {
-    recordableLayer.pixelFormat.supportedPixelFormat.videoColorProperties
+      if #available(iOS 10.0, macOS 11.0, *) {
+          return recordableLayer.pixelFormat.supportedPixelFormat.videoColorProperties
+      } else {
+          return nil
+      }
   }
-
+    
+#if canImport(UIKit)
   var videoTransform: CGAffineTransform {
     guard recordableLayer.framebufferOnly else { return .identity }
     switch recordableLayer.interfaceOrientation {
@@ -67,7 +76,6 @@ final class MetalPixelBufferProducer {
     case .landscapeLeft:
       return CGAffineTransform.identity
         .rotated(by: .pi / 2.0)
-//        .scaledBy(x: 1.0, y: -1.0)
     case .landscapeRight:
       return CGAffineTransform.identity
         .rotated(by: -.pi / 2.0)
@@ -79,7 +87,7 @@ final class MetalPixelBufferProducer {
     }
   }
 
-  var imageOrientation: UIImage.Orientation {
+  var imageOrientation: ImageRepresentable.Orientation {
     guard recordableLayer.framebufferOnly else { return .up }
     switch recordableLayer.interfaceOrientation {
     case .unknown, .portrait: return .up
@@ -89,6 +97,7 @@ final class MetalPixelBufferProducer {
     @unknown default: return .up
     }
   }
+#endif
 
   lazy var commandQueue: MTLCommandQueue? = device.makeCommandQueue()
 
@@ -172,11 +181,19 @@ final class MetalPixelBufferProducer {
   }
 
   func makeMetalTexturePool(basedOn texture: MTLTexture, surface: IOSurface) throws -> MetalTexturePool {
-    try metalTexturePoolFactory.getMetalTexturePool(
-      width: surface.width,
-      height: surface.height,
-      pixelFormat: texture.pixelFormat.supportedPixelFormat
-    )
+      if #available(iOS 10.0, macOS 11.0, *) {
+          try metalTexturePoolFactory.getMetalTexturePool(
+            width: surface.width,
+            height: surface.height,
+            pixelFormat: texture.pixelFormat.supportedPixelFormat
+          )
+      } else {
+          try metalTexturePoolFactory.getMetalTexturePool(
+            width: surface.width,
+            height: surface.height,
+            pixelFormat: .rgba8Unorm
+          )
+      }
   }
 
   func makeSourceTextureDescriptor(basedOn texture: MTLTexture, surface: IOSurface) -> MTLTextureDescriptor {
@@ -187,7 +204,7 @@ final class MetalPixelBufferProducer {
       mipmapped: false
     )
     textureDescriptor.usage = .shaderRead
-    if #available(iOS 13.0, *) {
+      if #available(iOS 13.0, macOS 10.15, *) {
       textureDescriptor.hazardTrackingMode = .untracked
     }
     return textureDescriptor
@@ -212,12 +229,22 @@ final class MetalPixelBufferProducer {
     sourceTexture: MTLTexture,
     destinationTexture: MTLTexture
   ) -> MPSImageConversion {
-    MPSImageConversion(
-      device: device,
-      srcAlpha: sourceTexture.pixelFormat.alphaType,
-      destAlpha: destinationTexture.pixelFormat.alphaType,
-      backgroundColor: nil,
-      conversionInfo: nil
-    )
+      if #available(iOS 10.0, macOS 11.0, *) {
+          return MPSImageConversion(
+            device: device,
+            srcAlpha: sourceTexture.pixelFormat.alphaType,
+            destAlpha: destinationTexture.pixelFormat.alphaType,
+            backgroundColor: nil,
+            conversionInfo: nil
+          )
+      } else {
+          return MPSImageConversion(
+            device: device,
+            srcAlpha: .alphaIsOne,
+            destAlpha: .alphaIsOne,
+            backgroundColor: nil,
+            conversionInfo: nil
+          )
+      }
   }
 }

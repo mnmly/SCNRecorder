@@ -25,7 +25,11 @@
 
 import Foundation
 import AVFoundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 import VideoToolbox
 import CoreVideo
 
@@ -36,15 +40,19 @@ enum ImageOutput {
     case createCGImageFromCVPixelBufferFailed(_ status: OSStatus)
   }
 
-  static func takeUIImage(
+  static func takeImageRepresentable(
     scale: CGFloat,
-    orientation: UIImage.Orientation,
-    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
+    orientation: ImageRepresentable.Orientation,
+    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
   ) -> (Result<CVPixelBuffer, Swift.Error>) -> Void {
     takeCGImage { result in
       handler(
         result.map {
+          #if os(iOS) || os(tvOS)
           UIImage(cgImage: $0, scale: scale, orientation: orientation)
+          #elseif os(macOS)
+          NSImage(cgImage: $0, size: .zero)
+          #endif
         }
       )
     }
