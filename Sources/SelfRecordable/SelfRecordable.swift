@@ -212,11 +212,7 @@ public extension SelfRecordable {
     videoRecording?.cancel()
     videoRecording = nil
   }
-//#if os(iOS) || os(tvOS)
-//scale: CGFloat = UIScreen.main.scale,
-//#else
-//#endif
-
+  #if os(iOS)
   func takePhoto(
     scale: CGFloat = 1.0,
     orientation: ImageRepresentable.Orientation? = nil,
@@ -231,10 +227,6 @@ public extension SelfRecordable {
       catch { assertionFailure("\(error)") }
     }
   }
-//#if os(iOS) || os(tvOS)
-//scale: CGFloat = UIScreen.main.scale,
-//#else
-//#endif
   func takePhotoResult(
     scale: CGFloat = 1.0,
     orientation: ImageRepresentable.Orientation? = nil,
@@ -244,4 +236,21 @@ public extension SelfRecordable {
       DispatchQueue.main.async { handler(photo) }
     }
   }
+  #else
+  func takePhoto(
+    completionHandler handler: @escaping (ImageRepresentable) -> Void
+   ) {
+    takePhotoResult {
+      do { try handler($0.get()) }
+      catch { assertionFailure("\(error)") }
+    }
+  }
+  func takePhotoResult(
+    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
+  ) {
+    assertedRecorder().takePhoto { photo in
+      DispatchQueue.main.async { handler(photo) }
+    }
+  }
+  #endif
 }

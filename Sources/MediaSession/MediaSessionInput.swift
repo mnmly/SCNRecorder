@@ -61,8 +61,9 @@ protocol VideoMediaSessionInput: MediaSessionInput {
   var videoColorProperties: [String: String]? { get }
 
   var videoTransform: CGAffineTransform { get }
-
-  var imageOrientation: ImageRepresentable.Orientation { get }
+#if canImport(UIKit)
+    var imageOrientation: ImageRepresentable.Orientation { get }
+#endif
 }
 
 internal

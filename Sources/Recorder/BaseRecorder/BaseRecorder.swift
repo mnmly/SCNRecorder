@@ -25,8 +25,11 @@
 
 import Foundation
 import CoreMedia
-#if os(iOS)
+#if canImport(UIKit)
+import UIKit
 import ARKit
+#else
+import AppKit
 #endif
 
 public class BaseRecorder: NSObject {
@@ -78,10 +81,11 @@ public class BaseRecorder: NSObject {
     mediaSession.capturePixelBuffers(handler: handler)
   }
 
+#if canImport(UIKit)
   public func takePhoto(
     scale: CGFloat,
-    orientation: PlatformImage.Orientation?,
-    handler: @escaping (Result<PlatformImage, Swift.Error>) -> Void
+    orientation: UIImage.Orientation?,
+    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
   ) {
     mediaSession.takePhoto(
       scale: scale,
@@ -89,6 +93,13 @@ public class BaseRecorder: NSObject {
       handler: handler
     )
   }
+#else
+  public func takePhoto(
+    handler: @escaping (Result<NSImage, Swift.Error>) -> Void
+  ) {
+    mediaSession.takePhoto(handler: handler)
+  }
+#endif
 
   public func takeCoreImage(handler: @escaping (Result<CIImage, Swift.Error>) -> Void) {
     mediaSession.takeCoreImage(handler: handler)

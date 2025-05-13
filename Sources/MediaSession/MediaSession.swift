@@ -53,8 +53,9 @@ final class MediaSession {
 
     var videoTransform: CGAffineTransform { videoInput.videoTransform }
 
+#if canImport(UIKit)
     var imageOrientation: ImageRepresentable.Orientation { videoInput.imageOrientation }
-
+#endif
     func start() { videoInput.start() }
 
     func stop() { videoInput.stop() }
@@ -173,19 +174,33 @@ extension MediaSession {
     return videoOutput.startVideoRecording()
   }
 
+    
+    #if canImport(UIKit)
   func takePhoto(
     scale: CGFloat,
     orientation: ImageRepresentable.Orientation?,
     handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
   ) {
     takePixelBuffer(
-      handler: ImageOutput.takeImageRepresentable(
+      handler: ImageOutput.takeUIImage(
         scale: scale,
         orientation: orientation ?? videoInput.imageOrientation,
         handler: handler
       )
     )
   }
+  #else
+  func takePhoto(
+    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
+  ) {
+    takePixelBuffer(
+      handler: ImageOutput.takeNSImage(
+        handler: handler
+      )
+    )
+  }
+    
+  #endif
 
   func takeCoreImage(handler: @escaping (Result<CIImage, Swift.Error>) -> Void) {
     takePixelBuffer(handler: ImageOutput.takeCIImage(handler: handler))

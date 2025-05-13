@@ -39,24 +39,34 @@ enum ImageOutput {
 
     case createCGImageFromCVPixelBufferFailed(_ status: OSStatus)
   }
-
-  static func takeImageRepresentable(
+  
+  #if canImport(UIKit)
+  static func takeUIImage(
     scale: CGFloat,
     orientation: ImageRepresentable.Orientation,
-    handler: @escaping (Result<ImageRepresentable, Swift.Error>) -> Void
+    handler: @escaping (Result<UIImage, Swift.Error>) -> Void
   ) -> (Result<CVPixelBuffer, Swift.Error>) -> Void {
     takeCGImage { result in
       handler(
         result.map {
-          #if os(iOS) || os(tvOS)
           UIImage(cgImage: $0, scale: scale, orientation: orientation)
-          #elseif os(macOS)
-          NSImage(cgImage: $0, size: .zero)
-          #endif
         }
       )
     }
   }
+  #else
+  static func takeNSImage(
+    handler: @escaping (Result<NSImage, Swift.Error>) -> Void
+  ) -> (Result<CVPixelBuffer, Swift.Error>) -> Void {
+    takeCGImage { result in
+      handler(
+        result.map {
+          NSImage(cgImage: $0, size: .zero)
+        }
+      )
+    }
+  }
+  #endif
 
   static func takeCIImage(
     handler: @escaping (Result<CIImage, Swift.Error>) -> Void

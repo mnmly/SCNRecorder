@@ -57,13 +57,11 @@ extension SceneRecorder {
         #endif
     }
 
+    #if canImport(UIKit)
     var imageOrientation: ImageRepresentable.Orientation {
-        #if canImport(UIKit)
-                return producer.imageOrientation
-        #else
-                return .up
-        #endif
+        producer.imageOrientation
     }
+    #endif
 
     var output: ((CVBuffer, CMTime) -> Void)?
 

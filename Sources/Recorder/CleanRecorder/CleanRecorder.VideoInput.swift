@@ -48,8 +48,9 @@ extension CleanRecorder {
     var videoColorProperties: [String: String]? { nil }
 
     var videoTransform: CGAffineTransform { .identity }
-
+#if canImport(UIKit)
       var imageOrientation: ImageRepresentable.Orientation { .up }
+#endif
 
     lazy var pixelBufferPoolFactory = PixelBufferPoolFactory.getWeaklyShared()
 
