@@ -36,6 +36,11 @@ public final class VideoRecording {
 
   public var fileType: AVFileType { videoOutput.fileType }
 
+  /// Indicates whether the video input is ready to accept more media data
+  public var isReadyForMoreMediaData: Bool {
+    videoOutput.videoInput.isReadyForMoreMediaData
+  }
+
   let videoOutput: VideoOutput
 
   init(videoOutput: VideoOutput) {
