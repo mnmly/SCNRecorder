@@ -38,7 +38,11 @@ public final class VideoRecording {
 
   /// Indicates whether the video input is ready to accept more media data
   public var isReadyForMoreMediaData: Bool {
-    videoOutput.videoInput.isReadyForMoreMediaData
+    if videoOutput.videoInput == nil {
+      return false
+    } else {
+      return videoOutput.videoInput.isReadyForMoreMediaData
+    }
   }
 
   let videoOutput: VideoOutput
